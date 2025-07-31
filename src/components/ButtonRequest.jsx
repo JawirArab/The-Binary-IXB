@@ -24,18 +24,22 @@ export default function ButtonRequest({ galleryRefreshKey }) {
   const [images, setImages] = useState([])
   const [isLoading, setIsLoading] = useState(true) // State untuk loading
 
+  const IMAGES_METADATA_FILE_PATH = "data/images.json" // Use the main images.json
+
   const fetchImagesFromGitHub = async () => {
     setIsLoading(true) // Set loading menjadi true saat memulai fetch
     console.log("Fetching images for ButtonRequest...")
     try {
-      const { content } = await getGitHubFile("data/images.json")
+      const { content } = await getGitHubFile(IMAGES_METADATA_FILE_PATH)
       const imageData = JSON.parse(content)
-      /** Sort images by timestamp in descending order (newest first) */
-      imageData.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-      setImages(imageData)
-      console.log("Images fetched successfully for ButtonRequest:", imageData.length, "images.")
+      /** Filter for pending images and sort by timestamp in descending order (newest first) */
+      const pendingImages = imageData
+        .filter((img) => img.status === "pending") // Filter only pending images
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      setImages(pendingImages)
+      console.log("Pending images fetched successfully for ButtonRequest:", pendingImages.length, "images.")
     } catch (error) {
-      console.error("Error fetching images from GitHub for ButtonRequest:", error)
+      console.error("Error fetching pending images from GitHub for ButtonRequest:", error)
       setImages([]) /** Ensure images is an empty array on error */
     } finally {
       setIsLoading(false) // Set loading menjadi false setelah fetch selesai (berhasil atau gagal)
@@ -71,10 +75,10 @@ export default function ButtonRequest({ galleryRefreshKey }) {
               onClick={handleClose}
             />
             <Typography id="spring-modal-description" sx={{ mt: 2 }}>
-              <h6 className="text-center text-white text-2xl mb-5">Request</h6>
+              <h6 className="text-center text-white text-2xl mb-5">Pending Requests</h6>
               <div className="h-[22rem] overflow-y-scroll overflow-y-scroll-no-thumb">
                 {isLoading ? (
-                  <p className="text-white text-center">Loading images...</p>
+                  <p className="text-white text-center">Loading pending images...</p>
                 ) : images.length > 0 ? (
                   images.map((imageData, index) => (
                     <div
@@ -91,12 +95,10 @@ export default function ButtonRequest({ galleryRefreshKey }) {
                     </div>
                   ))
                 ) : (
-                  <p className="text-white text-center">No images available.</p>
+                  <p className="text-white text-center">No pending images available.</p>
                 )}
               </div>
-              <div className="text-white text-[0.7rem] mt-5">
-                Note : Jika tidak ada gambar yang sudah anda upload silahkan reload
-              </div>
+              <div className="text-white text-[0.7rem] mt-5">Note : Images shown here are awaiting admin approval.</div>
             </Typography>
           </Box>
         </animated.div>
