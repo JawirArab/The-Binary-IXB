@@ -26,9 +26,11 @@ const Carousel = ({ galleryRefreshKey }) => {
     try {
       const { content } = await getGitHubFile("data/images.json")
       const imageData = JSON.parse(content)
-      /** Sort images by timestamp in descending order (newest first) */
-      imageData.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-      setImages(imageData.map((img) => img.url)) /** Extract only URLs for the carousel */
+      /** Filter for confirmed images and sort by timestamp in descending order (newest first) */
+      const confirmedImages = imageData
+        .filter((img) => img.status === "confirmed") // Filter only confirmed images
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      setImages(confirmedImages.map((img) => img.url)) /** Extract only URLs for the carousel */
     } catch (error) {
       console.error("Error fetching images from GitHub:", error)
       setImages([]) /** Ensure images is an empty array on error */
