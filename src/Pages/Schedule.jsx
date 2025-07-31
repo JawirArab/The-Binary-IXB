@@ -45,7 +45,7 @@ const Schedule = () => {
     [
       "Amirotul Muslimah Putriani",
       "SRI RAHAYU",
-      "Kulfan Rifki Sampurna",
+      "Kafian Rizki Sahputra",
       "NAZARENA JASMINE QORI",
       "MUHAMMAD RAFFA ARSYAFANI",
       "Sonya Jun Maxima Lau",
@@ -82,7 +82,7 @@ const Schedule = () => {
 
       <div className="text-white flex flex-col justify-center items-center mt-8 lg:mt-0 lg:mb-[10rem] mb-10 overflow-y-hidden">
         <div className="text-2xl font-medium mb-5 text-center" data-aos="fade-up" data-aos-duration="500">
-          Piket {currentDay}
+          Piket
         </div>
         {currentPiketNames && currentPiketNames.length > 0 ? (
           currentPiketNames.map((piketName, index) => (
