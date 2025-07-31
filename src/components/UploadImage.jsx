@@ -70,8 +70,6 @@ function UploadImage({ onUploadSuccess }) {
       return
     }
 
-    // Tidak perlu SweetAlert "Uploading..." lagi
-
     try {
       const reader = new FileReader()
       reader.readAsDataURL(imageUpload)
@@ -109,15 +107,6 @@ function UploadImage({ onUploadSuccess }) {
 
         await uploadGitHubImage(imagePath, base64data, `Upload image: ${newFilename}`)
 
-        Swal.fire({
-          icon: "success",
-          title: "Success!",
-          text: "Your image has been successfully uploaded.",
-          customClass: {
-            container: "sweet-alert-container",
-          },
-        })
-
         /** Update images.json with metadata */
         const { content: currentMetadataContent, sha: currentMetadataSha } =
           await getGitHubFile(IMAGES_METADATA_FILE_PATH)
@@ -126,7 +115,8 @@ function UploadImage({ onUploadSuccess }) {
         const newImageMetadata = {
           url: `${GITHUB_RAW_BASE}${imagePath}`,
           timestamp: new Date().toISOString(),
-          filename: newFilename, // Gunakan nama file baru
+          filename: newFilename,
+          status: "pending", // Set status to pending
         }
 
         const updatedImagesMetadata = [...currentImagesMetadata, newImageMetadata]
@@ -135,13 +125,22 @@ function UploadImage({ onUploadSuccess }) {
           IMAGES_METADATA_FILE_PATH,
           JSON.stringify(updatedImagesMetadata, null, 2),
           currentMetadataSha,
-          `Add metadata for ${newFilename}`,
+          `Add metadata for ${newFilename} with status pending`,
         )
 
         localStorage.setItem("uploadedImagesCount", uploadedImagesCount + 1)
         localStorage.setItem("lastUploadDate", new Date().toISOString())
 
         setImageUpload(null) /** Clear selected image */
+
+        Swal.fire({
+          icon: "success",
+          title: "Upload Successful!",
+          text: "Your image has been uploaded and is awaiting admin approval. It will appear in the gallery once approved.",
+          customClass: {
+            container: "sweet-alert-container",
+          },
+        })
 
         /** Panggil callback untuk memberitahu komponen induk bahwa upload berhasil */
         if (onUploadSuccess) {
@@ -164,7 +163,7 @@ function UploadImage({ onUploadSuccess }) {
       Swal.fire({
         icon: "error",
         title: "Error",
-        text: `Failed to upload image. Please try again. Details: ${error.message}`, // Tampilkan detail error
+        text: `Failed to upload image. Please try again. Details: ${error.message}`,
         customClass: {
           container: "sweet-alert-container",
         },
